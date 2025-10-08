@@ -1,19 +1,15 @@
 package com.acme;
 
-import io.smallrye.common.annotation.Blocking;
-import io.quarkus.runtime.Startup;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import org.graalvm.polyglot.Context;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-@Blocking
-@Startup
-@ApplicationScoped
+@Service
 public class GraalPyService {
     private final GraalPyContextProvider provider;
     private Context pythonCtx;
 
-    @Inject
+    @Autowired
     public GraalPyService(GraalPyContextProvider provider) {
         this.provider = provider;
     }

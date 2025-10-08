@@ -1,7 +1,7 @@
 plugins {
-    kotlin("jvm") version "2.2.10"
-    kotlin("plugin.allopen") version "2.2.10"
-    id("io.quarkus")
+    java
+    id("org.springframework.boot")
+    id("io.spring.dependency-management")
     id("org.graalvm.python") version "25.0.0"
 }
 
@@ -13,18 +13,14 @@ repositories {
 group = "com.acme"
 version = "0.0.1"
 
-val quarkusPlatformGroupId: String by project
-val quarkusPlatformArtifactId: String by project
-val quarkusPlatformVersion: String by project
-
 dependencies {
-    implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
-    implementation("io.quarkus:quarkus-kotlin")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("io.quarkus:quarkus-arc")
-    implementation("io.quarkus:quarkus-rest")
-    testImplementation("io.quarkus:quarkus-junit5")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    // GraalVM Polyglot and Python embedding dependencies
+    implementation("org.graalvm.polyglot:polyglot:25.0.0")
+    implementation("org.graalvm.python:python-embedding:25.0.0")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.rest-assured:rest-assured")
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
 }
 
 graalPy {
@@ -36,34 +32,17 @@ java {
     targetCompatibility = JavaVersion.VERSION_21
 }
 
-tasks.withType<Test> {
-    systemProperty("java.util.logging.manager", "org.jboss.logmanager.LogManager")
-}
-allOpen {
-    annotation("jakarta.ws.rs.Path")
-    annotation("jakarta.enterprise.context.ApplicationScoped")
-    annotation("jakarta.persistence.Entity")
-    annotation("io.quarkus.test.junit.QuarkusTest")
-}
-
-kotlin {
-    compilerOptions {
-        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
-        javaParameters = true
-    }
-}
-
 var defaultJvmArgs = listOf(
     "--add-opens", "java.base/java.lang=ALL-UNNAMED",
     "--enable-native-access=ALL-UNNAMED",
     "--sun-misc-unsafe-memory-access=allow",
 )
 
-tasks.quarkusDev {
+tasks.bootRun {
     jvmArgs = defaultJvmArgs
 }
 
-
 tasks.test {
     jvmArgs(defaultJvmArgs)
+    useJUnitPlatform()
 }
